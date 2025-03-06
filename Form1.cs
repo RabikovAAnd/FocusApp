@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Media;
 using System.Windows.Forms;
-using Приложение_Для_Концентрации;
 
 namespace Приложение_Для_Концентрации
 {
@@ -16,7 +13,7 @@ namespace Приложение_Для_Концентрации
         private bool isWorkTime = true;
         private int cyclesCompleted = 0;
         private bool isPaused = false;
-        private DataTable statisticsTable;
+        private NotifyIcon notifyIcon;
 
         public Form1()
         {
@@ -24,15 +21,17 @@ namespace Приложение_Для_Концентрации
             timeLeft = workTime;
             UpdateTimeLabel();
             UpdateCyclesLabel();
-            InitializeStatistics();
-            LoadSettings();
+            InitializeNotifyIcon();
+            btnPause.Visible = false; // Скрываем кнопку Pause изначально
         }
 
-        private void InitializeStatistics()
+        private void InitializeNotifyIcon()
         {
-            statisticsTable = new DataTable();
-            statisticsTable.Columns.Add("Date", typeof(string));
-            statisticsTable.Columns.Add("Cycles", typeof(int));
+            notifyIcon = new NotifyIcon
+            {
+                Icon = SystemIcons.Information,
+                Visible = false
+            };
         }
 
         private void UpdateTimeLabel()
@@ -49,17 +48,17 @@ namespace Приложение_Для_Концентрации
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (isPaused)
-            {
-                timer1.Start();
-                btnStart.Text = "Pause";
-                isPaused = false;
-            }
-            else
-            {
-                timer1.Start();
-                btnStart.Text = "Pause";
-            }
+            timer1.Start();
+            btnStart.Visible = false; // Скрываем кнопку Start
+            btnPause.Visible = true; // Показываем кнопку Pause
+        }
+
+        private void btnPause_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            btnPause.Visible = false; // Скрываем кнопку Pause
+            btnStart.Visible = true; // Показываем кнопку Start
+            isPaused = true;
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -70,18 +69,9 @@ namespace Приложение_Для_Концентрации
             cyclesCompleted = 0;
             UpdateTimeLabel();
             UpdateCyclesLabel();
-            btnStart.Text = "Start";
+            btnStart.Visible = true; // Показываем кнопку Start
+            btnPause.Visible = false; // Скрываем кнопку Pause
             isPaused = false;
-        }
-
-        private void btnPause_Click(object sender, EventArgs e)
-        {
-            if (timer1.Enabled)
-            {
-                timer1.Stop();
-                btnStart.Text = "Resume";
-                isPaused = true;
-            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -96,115 +86,35 @@ namespace Приложение_Для_Концентрации
                 timer1.Stop();
                 if (isWorkTime)
                 {
+                    ShowNotification("Work Time Ended", "Time for a break!");
                     SystemSounds.Beep.Play();
-                    MessageBox.Show("Время работы закончилось! Начните перерыв.");
                     isWorkTime = false;
                     timeLeft = breakTime;
                 }
                 else
                 {
+                    ShowNotification("Break Time Ended", "Time to work!");
                     SystemSounds.Beep.Play();
-                    MessageBox.Show("Перерыв закончился! Начните работу.");
                     isWorkTime = true;
                     timeLeft = workTime;
                     cyclesCompleted++;
                     UpdateCyclesLabel();
-                    SaveStatistics();
                 }
                 UpdateTimeLabel();
+                btnStart.Visible = true; // Показываем кнопку Start
+                btnPause.Visible = false; // Скрываем кнопку Pause
             }
         }
 
-        private void SaveStatistics()
+        private void ShowNotification(string title, string message)
         {
-            string today = DateTime.Now.ToShortDateString();
-            DataRow[] rows = statisticsTable.Select($"Date = '{today}'");
-            if (rows.Length > 0)
-            {
-                rows[0]["Cycles"] = (int)rows[0]["Cycles"] + 1;
-            }
-            else
-            {
-                statisticsTable.Rows.Add(today, 1);
-            }
+            notifyIcon.Visible = true;
+            notifyIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.Info);
         }
 
-        private void btnSettings_Click(object sender, EventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            using (var settingsForm = new SettingsForm(workTime, breakTime))
-            {
-                if (settingsForm.ShowDialog() == DialogResult.OK)
-                {
-                    workTime = settingsForm.WorkTime;
-                    breakTime = settingsForm.BreakTime;
-                    timeLeft = isWorkTime ? workTime : breakTime;
-                    UpdateTimeLabel();
-                    SaveSettings();
-                }
-            }
-        }
-
-        private void btnStatistics_Click(object sender, EventArgs e)
-        {
-            using (var statisticsForm = new StatisticsForm(statisticsTable))
-            {
-                statisticsForm.ShowDialog();
-            }
-        }
-
-        private void btnExport_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "CSV files (*.csv)|*.csv|Text files (*.txt)|*.txt";
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                ExportStatistics(saveFileDialog.FileName);
-            }
-        }
-
-        private void ExportStatistics(string filePath)
-        {
-            using (StreamWriter writer = new StreamWriter(filePath))
-            {
-                writer.WriteLine("Date,Cycles");
-                foreach (DataRow row in statisticsTable.Rows)
-                {
-                    writer.WriteLine($"{row["Date"]},{row["Cycles"]}");
-                }
-            }
-        }
-
-        private void LoadSettings()
-        {
-            if (File.Exists("settings.txt"))
-            {
-                string[] lines = File.ReadAllLines("settings.txt");
-                workTime = int.Parse(lines[0]);
-                breakTime = int.Parse(lines[1]);
-                timeLeft = isWorkTime ? workTime : breakTime;
-                UpdateTimeLabel();
-            }
-        }
-
-        private void SaveSettings()
-        {
-            File.WriteAllText("settings.txt", $"{workTime}\n{breakTime}");
-        }
-
-        private void btnTheme_Click(object sender, EventArgs e)
-        {
-            if (this.BackColor == SystemColors.Control)
-            {
-                this.BackColor = Color.Black;
-                this.ForeColor = Color.White;
-                btnTheme.Text = "Light Theme";
-            }
-            else
-            {
-                this.BackColor = SystemColors.Control;
-                this.ForeColor = SystemColors.ControlText;
-                btnTheme.Text = "Dark Theme";
-            }
+            notifyIcon.Dispose(); // Освобождаем ресурсы NotifyIcon
         }
     }
 }
