@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35806.99
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Приложение_Для_Концентрации", "Приложение_Для_Концентрации.csproj", "{7BC91137-5F10-433A-B2F0-CDD5C00595C3}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "FocusApp", "..\FocusApp\FocusApp.vdproj", "{C6AC09A1-FC67-3DE4-33C3-47DDE7706D67}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7BC91137-5F10-433A-B2F0-CDD5C00595C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BC91137-5F10-433A-B2F0-CDD5C00595C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BC91137-5F10-433A-B2F0-CDD5C00595C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BC91137-5F10-433A-B2F0-CDD5C00595C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6AC09A1-FC67-3DE4-33C3-47DDE7706D67}.Debug|Any CPU.ActiveCfg = Debug
+		{C6AC09A1-FC67-3DE4-33C3-47DDE7706D67}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EB57A626-9605-4102-AF6B-3CAA113CC81B}
+	EndGlobalSection
+EndGlobal
