@@ -9,6 +9,9 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label lblCycles;
         private System.Windows.Forms.Button btnPause;
+        private System.Windows.Forms.Button btnSettings;
+        private System.Windows.Forms.Button btnStatistics;
+        private System.Windows.Forms.Button btnExport;
 
         protected override void Dispose(bool disposing)
         {
@@ -28,6 +31,9 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.lblCycles = new System.Windows.Forms.Label();
             this.btnPause = new System.Windows.Forms.Button();
+            this.btnSettings = new System.Windows.Forms.Button();
+            this.btnStatistics = new System.Windows.Forms.Button();
+            this.btnExport = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblTime
@@ -85,11 +91,44 @@
             this.btnPause.Visible = false;
             this.btnPause.Click += new System.EventHandler(this.btnPause_Click);
             // 
+            // btnSettings
+            // 
+            this.btnSettings.Location = new System.Drawing.Point(150, 230);
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnSettings.TabIndex = 5;
+            this.btnSettings.Text = "Settings";
+            this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
+            // 
+            // btnStatistics
+            // 
+            this.btnStatistics.Location = new System.Drawing.Point(50, 260);
+            this.btnStatistics.Name = "btnStatistics";
+            this.btnStatistics.Size = new System.Drawing.Size(75, 23);
+            this.btnStatistics.TabIndex = 6;
+            this.btnStatistics.Text = "Statistics";
+            this.btnStatistics.UseVisualStyleBackColor = true;
+            this.btnStatistics.Click += new System.EventHandler(this.btnStatistics_Click);
+            // 
+            // btnExport
+            // 
+            this.btnExport.Location = new System.Drawing.Point(150, 260);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(75, 23);
+            this.btnExport.TabIndex = 7;
+            this.btnExport.Text = "Export";
+            this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(300, 300);
+            this.Controls.Add(this.btnExport);
+            this.Controls.Add(this.btnStatistics);
+            this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnPause);
             this.Controls.Add(this.lblCycles);
             this.Controls.Add(this.btnReset);

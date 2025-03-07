@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Media;
 using System.Windows.Forms;
+using Приложение_Для_Концентрации;
 
 namespace Приложение_Для_Концентрации
 {
@@ -14,6 +17,7 @@ namespace Приложение_Для_Концентрации
         private int cyclesCompleted = 0;
         private bool isPaused = false;
         private NotifyIcon notifyIcon;
+        private DataTable statisticsTable;
 
         public Form1()
         {
@@ -22,6 +26,7 @@ namespace Приложение_Для_Концентрации
             UpdateTimeLabel();
             UpdateCyclesLabel();
             InitializeNotifyIcon();
+            InitializeStatistics();
             btnPause.Visible = false; // Скрываем кнопку Pause изначально
         }
 
@@ -32,6 +37,13 @@ namespace Приложение_Для_Концентрации
                 Icon = SystemIcons.Information,
                 Visible = false
             };
+        }
+
+        private void InitializeStatistics()
+        {
+            statisticsTable = new DataTable();
+            statisticsTable.Columns.Add("Date", typeof(string));
+            statisticsTable.Columns.Add("Cycles", typeof(int));
         }
 
         private void UpdateTimeLabel()
@@ -99,6 +111,7 @@ namespace Приложение_Для_Концентрации
                     timeLeft = workTime;
                     cyclesCompleted++;
                     UpdateCyclesLabel();
+                    SaveStatistics();
                 }
                 UpdateTimeLabel();
                 btnStart.Visible = true; // Показываем кнопку Start
@@ -110,6 +123,64 @@ namespace Приложение_Для_Концентрации
         {
             notifyIcon.Visible = true;
             notifyIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.Info);
+        }
+
+        private void SaveStatistics()
+        {
+            string today = DateTime.Now.ToShortDateString();
+            DataRow[] rows = statisticsTable.Select($"Date = '{today}'");
+            if (rows.Length > 0)
+            {
+                rows[0]["Cycles"] = (int)rows[0]["Cycles"] + 1;
+            }
+            else
+            {
+                statisticsTable.Rows.Add(today, 1);
+            }
+        }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            using (var settingsForm = new SettingsForm(workTime, breakTime))
+            {
+                if (settingsForm.ShowDialog() == DialogResult.OK)
+                {
+                    workTime = settingsForm.WorkTime;
+                    breakTime = settingsForm.BreakTime;
+                    timeLeft = isWorkTime ? workTime : breakTime;
+                    UpdateTimeLabel();
+                }
+            }
+        }
+
+        private void btnStatistics_Click(object sender, EventArgs e)
+        {
+            using (var statisticsForm = new StatisticsForm(statisticsTable))
+            {
+                statisticsForm.ShowDialog();
+            }
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV files (*.csv)|*.csv|Text files (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                ExportStatistics(saveFileDialog.FileName);
+            }
+        }
+
+        private void ExportStatistics(string filePath)
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.WriteLine("Date,Cycles");
+                foreach (DataRow row in statisticsTable.Rows)
+                {
+                    writer.WriteLine($"{row["Date"]},{row["Cycles"]}");
+                }
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
